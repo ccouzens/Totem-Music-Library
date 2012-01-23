@@ -2,9 +2,15 @@
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkTreeStore" id="library_tree_store">
+  <object class="GtkListStore" id="album_store">
     <columns>
-      <!-- column-name name -->
+      <!-- column-name artist_name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="artist_store">
+    <columns>
+      <!-- column-name artist_name -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -12,25 +18,42 @@
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="hscrollbar_policy">automatic</property>
-    <property name="vscrollbar_policy">automatic</property>
+    <property name="vscrollbar_policy">never</property>
     <child>
-      <object class="GtkTreeView" id="treeview1">
+      <object class="GtkViewport" id="viewport1">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="model">library_tree_store</property>
-        <property name="headers_visible">False</property>
+        <property name="can_focus">False</property>
         <child>
-          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-            <property name="title" translatable="yes">column</property>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
-              <object class="GtkCellRendererText" id="cellrenderertext1"/>
-              <attributes>
-                <attribute name="text">0</attribute>
-              </attributes>
+              <object class="GtkTreeView" id="treeview1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">artist_store</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="song_store">
+    <columns>
+      <!-- column-name song_name -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>
