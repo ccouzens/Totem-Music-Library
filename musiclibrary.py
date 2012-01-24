@@ -73,10 +73,12 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
         self.artist_store = builder.get_object ('artist_store')
         self.artist_view = builder.get_object ('artist_tree_view')
-
-        self.artist_view.connect("cursor-changed", self._artist_selected_cb)
+        self.artist_clicked = self.artist_view.connect("cursor-changed", self._artist_selected_cb)
 
         self.album_store = builder.get_object ('album_store')
+        self.album_view = builder.get_object ('album_tree_view')
+        self.album_clicked = self.album_view.connect("cursor-changed", self._album_selected_cb)
+
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
@@ -84,14 +86,17 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.populate_artist_list ()
 
     def do_deactivate(self):
+        self.album_view.disconnect(self.album_clicked)
+        self.artist_view.disconnect(self.artist_clicked)
         self.totem.remove_sidebar_page ("musiclibrary")
 
     def populate_artist_list (self):
         cursor = self.conn.query (ARTIST_QUERY, None)
         while cursor.next (None):
-            self.artist_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.artist_store.append((cursor.get_string(0)[0][0:15],cursor.get_string(1)[0]))
 
     def populate_album_list (self):
+        self.album_store.clear()
         cursor = self.conn.query (albums_query(self.artist), None)
         while cursor.next (None):
             self.album_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
@@ -103,11 +108,26 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         assert tree_store == self.artist_store
         (path, focus_column) = tree_view.get_cursor()
 
-
         tree_iter = tree_store.get_iter (path)
         if tree_iter == None:
             return
 
         self.artist = tree_store.get_value (tree_iter, 1)
         self.populate_album_list()
+
+    def _album_selected_cb (self, tree_view):
+        assert tree_view == self.album_view
+        tree_store = tree_view.get_model ()
+        assert tree_store == self.album_store
+        (path, focus_column) = tree_view.get_cursor()
+        if path == None:
+            return
+
+        tree_iter = tree_store.get_iter (path)
+        if tree_iter == None:
+            return
+
+        self.album = tree_store.get_value (tree_iter, 1)
+        print tree_store.get_value (tree_iter, 0)
+        # self.populate_song_list()
 
