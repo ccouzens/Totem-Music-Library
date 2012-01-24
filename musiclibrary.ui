@@ -12,6 +12,8 @@
     <columns>
       <!-- column-name artist_name -->
       <column type="gchararray"/>
+      <!-- column-name artist_object -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkScrolledWindow" id="root_window">
@@ -34,7 +36,7 @@
                 <property name="hscrollbar_policy">never</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview1">
+                  <object class="GtkTreeView" id="artist_tree_view">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">artist_store</property>
@@ -65,7 +67,7 @@
                 <property name="hscrollbar_policy">never</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview2">
+                  <object class="GtkTreeView" id="album_tree_view">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">album_store</property>
@@ -97,7 +99,7 @@
                 <property name="hscrollbar_policy">never</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview3">
+                  <object class="GtkTreeView" id="song_tree_view">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">song_store</property>

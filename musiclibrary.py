@@ -6,7 +6,7 @@ from gi.repository import GObject
 from gi.repository import Tracker
 
 ARTIST_QUERY = """
-SELECT ?artist ?artist_name
+SELECT ?artist_name ?artist
 WHERE {
     ?album a nmm:MusicAlbum; 
         nmm:albumArtist ?artist.
@@ -56,6 +56,9 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     __gtype_name__ = 'MusicLibrary'
 
     object = GObject.property(type = GObject.Object)
+    artist = None
+    album = None
+    song = None
 
     def __init__(self):
         GObject.Object.__init__ (self)
@@ -69,6 +72,9 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         container = builder.get_object ('root_window')
 
         self.artist_store = builder.get_object ('artist_store')
+        self.artist_view = builder.get_object ('artist_tree_view')
+
+        self.artist_view.connect("cursor-changed", self._artist_selected_cb)
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
@@ -81,4 +87,19 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     def populate_artist_list (self):
         cursor = self.conn.query (ARTIST_QUERY, None)
         while cursor.next (None):
-            self.artist_store.append((cursor.get_string(1)[0],))
+            self.artist_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
+
+    def _artist_selected_cb (self, tree_view):
+        assert tree_view == self.artist_view
+        tree_store = tree_view.get_model ()
+        assert tree_store == self.artist_store
+        (path, focus_column) = tree_view.get_cursor()
+
+
+        tree_iter = tree_store.get_iter (path)
+        if tree_iter == None:
+            return
+
+        self.artist = tree_store.get_value (tree_iter, 1)
+        print self.artist, tree_store.get_value (tree_iter, 0)
+
