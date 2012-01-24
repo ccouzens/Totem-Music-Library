@@ -6,6 +6,8 @@
     <columns>
       <!-- column-name album_name -->
       <column type="gchararray"/>
+      <!-- column-name album_object -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="artist_store">
@@ -132,6 +134,8 @@
   <object class="GtkListStore" id="song_store">
     <columns>
       <!-- column-name song_name -->
+      <column type="gchararray"/>
+      <!-- column-name song_object -->
       <column type="gchararray"/>
     </columns>
   </object>

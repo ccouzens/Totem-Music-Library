@@ -28,13 +28,13 @@ def sparql_safe (string):
     return string.replace('"', '\\\"')
 
 def albums_query (artist):
-    # bug, should use the artist object, not the artist name
     artist = sparql_safe(artist)
     return """
-    SELECT ?album ?album_name
+    SELECT ?album_name ?album
     WHERE {
         ?album a nmm:MusicAlbum; 
-            nmm:albumArtist [ nmm:artistName "%s" ].
+            nmm:albumArtist "%s";
+            nmm:albumTitle ?album_name.
         # make sure the album isn't empty
         ?song nmm:musicAlbum ?album .
     }  
@@ -75,6 +75,8 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.artist_view = builder.get_object ('artist_tree_view')
 
         self.artist_view.connect("cursor-changed", self._artist_selected_cb)
+
+        self.album_store = builder.get_object ('album_store')
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
@@ -89,6 +91,12 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         while cursor.next (None):
             self.artist_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
+    def populate_album_list (self):
+        cursor = self.conn.query (albums_query(self.artist), None)
+        while cursor.next (None):
+            self.album_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
+
+
     def _artist_selected_cb (self, tree_view):
         assert tree_view == self.artist_view
         tree_store = tree_view.get_model ()
@@ -101,5 +109,5 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
             return
 
         self.artist = tree_store.get_value (tree_iter, 1)
-        print self.artist, tree_store.get_value (tree_iter, 0)
+        self.populate_album_list()
 
