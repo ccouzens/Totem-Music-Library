@@ -42,15 +42,19 @@ def albums_query (artist):
     ORDER BY ?album_name
     """ % (artist, )
 
-
-#
-#
-#
-# Handle expanding an artist
-#
-#
-#
-
+def songs_query (album):
+    album = sparql_safe(album)
+    return """
+    SELECT ?song_name ?song
+    WHERE {
+        ?song a nmm:MusicPiece; 
+            nmm:musicAlbum "%s";
+            nmm:trackNumber ?trackNumber;
+            nie:title ?song_name.
+    }  
+    # need to also sort by disk number
+    ORDER BY ?trackNumber
+    """ % (album, )
 
 class MusicLibrary(GObject.Object, Peas.Activatable):
     __gtype_name__ = 'MusicLibrary'
@@ -79,6 +83,9 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.album_view = builder.get_object ('album_tree_view')
         self.album_clicked = self.album_view.connect("cursor-changed", self._album_selected_cb)
 
+        self.song_store = builder.get_object ('song_store')
+        self.song_view = builder.get_object ('song_tree_view')
+
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
@@ -97,10 +104,16 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
     def populate_album_list (self):
         self.album_store.clear()
+        self.song_store.clear()
         cursor = self.conn.query (albums_query(self.artist), None)
         while cursor.next (None):
             self.album_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
+    def populate_song_list (self):
+        self.song_store.clear()
+        cursor = self.conn.query (songs_query(self.album), None)
+        while cursor.next (None):
+            self.song_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
     def _artist_selected_cb (self, tree_view):
         assert tree_view == self.artist_view
@@ -128,6 +141,4 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
             return
 
         self.album = tree_store.get_value (tree_iter, 1)
-        print tree_store.get_value (tree_iter, 0)
-        # self.populate_song_list()
-
+        self.populate_song_list()
