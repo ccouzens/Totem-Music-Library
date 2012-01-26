@@ -45,12 +45,13 @@ def albums_query (artist):
 def songs_query (album):
     album = sparql_safe(album)
     return """
-    SELECT ?song_name ?song
+    SELECT ?song_name ?song ?filename
     WHERE {
         ?song a nmm:MusicPiece; 
             nmm:musicAlbum "%s";
             nmm:trackNumber ?trackNumber;
-            nie:title ?song_name.
+            nie:title ?song_name;
+            nie:url ?filename.
     }  
     # need to also sort by disk number
     ORDER BY ?trackNumber
@@ -85,6 +86,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
         self.song_store = builder.get_object ('song_store')
         self.song_view = builder.get_object ('song_tree_view')
+        self.song_clicked = self.song_view.connect("row-activated", self._song_activated_cb)
 
         container.show_all ()
 
@@ -113,7 +115,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.song_store.clear()
         cursor = self.conn.query (songs_query(self.album), None)
         while cursor.next (None):
-            self.song_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.song_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0],cursor.get_string(2)[0]))
 
     def _artist_selected_cb (self, tree_view):
         assert tree_view == self.artist_view
@@ -142,3 +144,21 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
         self.album = tree_store.get_value (tree_iter, 1)
         self.populate_song_list()
+
+    def _song_activated_cb (self, tree_view, path, view_column):
+        assert tree_view == self.song_view
+        tree_store = tree_view.get_model ()
+        assert tree_store == self.song_store
+        if path == None:
+            return
+
+        tree_iter = tree_store.get_iter (path)
+        if tree_iter == None:
+            return
+
+        self.song_name = tree_store.get_value (tree_iter, 1)
+        self.song_filename = tree_store.get_value (tree_iter, 2)
+        self.play_song()
+
+    def play_song(self):
+        self.totem.add_to_playlist_and_play(self.song_filename, self.song_name, True)

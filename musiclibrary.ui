@@ -137,6 +137,8 @@
       <column type="gchararray"/>
       <!-- column-name song_object -->
       <column type="gchararray"/>
+      <!-- column-name song_filename -->
+      <column type="gchararray"/>
     </columns>
   </object>
 </interface>
