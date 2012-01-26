@@ -5,6 +5,8 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Tracker
 
+# see http://oscaf.sourceforge.net/nmm.html for descriptions of the query objects
+# see http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Music for example music queries
 ARTIST_QUERY = """
 SELECT ?artist_name ?artist
 WHERE {
