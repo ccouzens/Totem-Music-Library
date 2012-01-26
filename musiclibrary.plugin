@@ -6,4 +6,4 @@ Name=Tracker Music Library
 Description=A music library using Tracker as the database.
 Authors=Chris Couzens <ccouzens@gmail.com>
 Copyright=Copyright © 2012 Chris Couzens
-Website=http://www.gnome.org/projects/totem/
+Website=https://github.com/ccouzens/music-player
