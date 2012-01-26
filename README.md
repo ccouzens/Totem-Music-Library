@@ -3,12 +3,14 @@ MusicLibrary Totem Plugin
 
 A music library for [Totem](http://projects.gnome.org/totem/) that uses [Tracker](http://projects.gnome.org/tracker/) as the database.
 
+Since it uses Tracker, it doesn't require any configuration.
+
 On the left is a list of the artists in your music collection.
 When you select an artist, it lists their albums.
 When you select an album, it lists the songs for that album.
 When you double click a song, it starts playing.
 
-![screenshot](Screenshot_at_2012_01_26.png "screenshot")
+![screenshot](https://github.com/ccouzens/Totem-Music-Library/raw/master/Screenshot_at_2012_01_26.png "screenshot")
 
 Install
 -------
