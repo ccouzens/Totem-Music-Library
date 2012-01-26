@@ -18,17 +18,8 @@ GROUP BY ?artist
 ORDER BY ?artist_name
 """
 
-def sparql_safe (string):
-    # is this enough?
-    # what is the best way to guard against sparql injection?
-    # Perhaps this? http://developer.gnome.org/libtracker-sparql/unstable/tracker-examples-builder.html
-    # I can't get my head around it though.
-    # 
-    # bug, should be using the builder as described above
-    return string.replace('"', '\\\"')
-
 def albums_query (artist):
-    artist = sparql_safe(artist)
+    artist = Tracker.sparql_escape_string(artist)
     return """
     SELECT ?album_name ?album
     WHERE {
@@ -43,7 +34,7 @@ def albums_query (artist):
     """ % (artist, )
 
 def songs_query (album):
-    album = sparql_safe(album)
+    album = Tracker.sparql_escape_string(album)
     return """
     SELECT ?song_name ?song ?filename
     WHERE {
