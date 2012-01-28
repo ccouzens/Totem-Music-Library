@@ -54,9 +54,6 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     __gtype_name__ = 'MusicLibrary'
 
     object = GObject.property(type = GObject.Object)
-    artist = None
-    album = None
-    song = None
 
     def __init__(self):
         GObject.Object.__init__ (self)
@@ -69,27 +66,27 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         builder = Totem.plugin_load_interface ("musiclibrary", "musiclibrary.ui", True, self.totem.get_main_window (), self)
         container = builder.get_object ('root_window')
 
-        self.artist_store = builder.get_object ('artist_store')
-        self.artist_view = builder.get_object ('artist_tree_view')
-        self.artist_clicked = self.artist_view.connect("cursor-changed", self._artist_selected_cb)
+        self.music_store = builder.get_object ('music_store')
+        self.music_view = builder.get_object ('music_tree_view')
+        #self.artist_clicked = self.artist_view.connect("cursor-changed", self._artist_selected_cb)
 
-        self.album_store = builder.get_object ('album_store')
-        self.album_view = builder.get_object ('album_tree_view')
-        self.album_clicked = self.album_view.connect("cursor-changed", self._album_selected_cb)
+        #self.album_store = builder.get_object ('album_store')
+        #self.album_view = builder.get_object ('album_tree_view')
+        #self.album_clicked = self.album_view.connect("cursor-changed", self._album_selected_cb)
 
-        self.song_store = builder.get_object ('song_store')
-        self.song_view = builder.get_object ('song_tree_view')
-        self.song_clicked = self.song_view.connect("row-activated", self._song_activated_cb)
+        #self.song_store = builder.get_object ('song_store')
+        #self.song_view = builder.get_object ('song_tree_view')
+        #self.song_clicked = self.song_view.connect("row-activated", self._song_activated_cb)
 
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
 
-        self.populate_artist_list ()
+        #self.populate_artist_list ()
 
     def do_deactivate(self):
-        self.album_view.disconnect(self.album_clicked)
-        self.artist_view.disconnect(self.artist_clicked)
+        #self.album_view.disconnect(self.album_clicked)
+        #self.artist_view.disconnect(self.artist_clicked)
         self.totem.remove_sidebar_page ("musiclibrary")
 
     def populate_artist_list (self):
