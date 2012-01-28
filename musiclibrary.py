@@ -66,7 +66,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         builder = Totem.plugin_load_interface ("musiclibrary", "musiclibrary.ui", True, self.totem.get_main_window (), self)
         container = builder.get_object ('root_window')
 
-        self.music_store = builder.get_object ('music_store')
+        self.music_store = builder.get_object ('music_tree_store')
         self.music_view = builder.get_object ('music_tree_view')
         #self.artist_clicked = self.artist_view.connect("cursor-changed", self._artist_selected_cb)
 
@@ -82,7 +82,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
 
-        #self.populate_artist_list ()
+        self.populate_artists ()
 
     def do_deactivate(self):
         #self.album_view.disconnect(self.album_clicked)
@@ -93,10 +93,10 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.music_store = None
         self.music_view = None
 
-    def populate_artist_list (self):
+    def populate_artists (self):
         cursor = self.conn.query (ARTIST_QUERY, None)
         while cursor.next (None):
-            self.artist_store.append((cursor.get_string(0)[0][0:15],cursor.get_string(1)[0]))
+            self.music_store.append(None, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
     def populate_album_list (self):
         self.album_store.clear()
