@@ -88,6 +88,10 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         #self.album_view.disconnect(self.album_clicked)
         #self.artist_view.disconnect(self.artist_clicked)
         self.totem.remove_sidebar_page ("musiclibrary")
+        self.totem = None
+        self.conn = None
+        self.music_store = None
+        self.music_view = None
 
     def populate_artist_list (self):
         cursor = self.conn.query (ARTIST_QUERY, None)
