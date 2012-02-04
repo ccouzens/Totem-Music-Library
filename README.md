@@ -16,7 +16,7 @@ Install
 -------
 
     # Some of the Ubuntu dependencies:
-    sudo apt-get install gir1.2-tracker-0.12 gir1.2-totem-1.0 totem
+    sudo apt-get install gir1.2-tracker-0.12 gir1.2-totem-1.0 totem tracker
 
     mkdir -p ~/.local/share/totem/plugins
     cd ~/.local/share/totem/plugins
@@ -26,7 +26,8 @@ Install
     totem
 
 Enable the plugin and pay attention to the messages on the command line.
-If you needed to install something else, let me know and I'll add to this page
+If you needed to install something else, let me know and I'll add to this page.
+You may need to wait a while after installing Tracker before it indexes your music.
 
 Critique
 --------
