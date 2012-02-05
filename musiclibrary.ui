@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.24"/>
-  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkTreeStore" id="music_tree_store">
     <columns>
       <!-- column-name display_name -->
@@ -13,14 +12,15 @@
   <object class="GtkScrolledWindow" id="root_window">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
-    <property name="hscrollbar_policy">automatic</property>
-    <property name="vscrollbar_policy">never</property>
     <child>
       <object class="GtkTreeView" id="music_tree_view">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="model">music_tree_store</property>
         <property name="headers_visible">False</property>
+        <child internal-child="selection">
+          <object class="GtkTreeSelection" id="treeview-selection1"/>
+        </child>
         <child>
           <object class="GtkTreeViewColumn" id="treeviewcolumn1">
             <property name="title" translatable="yes">column</property>
