@@ -5,6 +5,9 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Tracker
 
+DISPLAY_COLUMN = 0
+OBJECT_COLUMN = 1
+
 # see http://oscaf.sourceforge.net/nmm.html for descriptions of the query objects
 # see http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Music for example music queries
 ARTIST_QUERY = """
@@ -68,21 +71,12 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
         self.music_store = builder.get_object ('music_tree_store')
         self.music_view = builder.get_object ('music_tree_view')
-        #self.artist_clicked = self.artist_view.connect("cursor-changed", self._artist_selected_cb)
-
-        #self.album_store = builder.get_object ('album_store')
-        #self.album_view = builder.get_object ('album_tree_view')
-        #self.album_clicked = self.album_view.connect("cursor-changed", self._album_selected_cb)
-
-        #self.song_store = builder.get_object ('song_store')
-        #self.song_view = builder.get_object ('song_tree_view')
-        #self.song_clicked = self.song_view.connect("row-activated", self._song_activated_cb)
 
         container.show_all ()
 
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
 
-        self.populate_artists ()
+        GObject.idle_add(self.populate_artists)
 
     def do_deactivate(self):
         #self.album_view.disconnect(self.album_clicked)
@@ -97,13 +91,24 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         cursor = self.conn.query (ARTIST_QUERY, None)
         while cursor.next (None):
             self.music_store.append(None, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
+        GObject.idle_add(self.populate_next_album_list)
+        self.next_artist_to_do_albums = self.music_store.get_iter_first()
+        return False
 
-    def populate_album_list (self):
-        self.album_store.clear()
-        self.song_store.clear()
-        cursor = self.conn.query (albums_query(self.artist), None)
+    def populate_next_album_list (self):
+        tree_model = self.music_store
+        if self.next_artist_to_do_albums == None: return False
+
+        artist_object = tree_model.get_value(self.next_artist_to_do_albums, OBJECT_COLUMN)
+        self.populate_album_list(artist_object, self.next_artist_to_do_albums)
+
+        self.next_artist_to_do_albums = tree_model.iter_next(self.next_artist_to_do_albums)
+        return True
+
+    def populate_album_list (self, artist_object, artist_iter):
+        cursor = self.conn.query (albums_query(artist_object), None)
         while cursor.next (None):
-            self.album_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.music_store.append(artist_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
     def populate_song_list (self):
         self.song_store.clear()
@@ -111,48 +116,6 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         while cursor.next (None):
             self.song_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0],cursor.get_string(2)[0]))
 
-    def _artist_selected_cb (self, tree_view):
-        assert tree_view == self.artist_view
-        tree_store = tree_view.get_model ()
-        assert tree_store == self.artist_store
-        (path, focus_column) = tree_view.get_cursor()
-
-        tree_iter = tree_store.get_iter (path)
-        if tree_iter == None:
-            return
-
-        self.artist = tree_store.get_value (tree_iter, 1)
-        self.populate_album_list()
-
-    def _album_selected_cb (self, tree_view):
-        assert tree_view == self.album_view
-        tree_store = tree_view.get_model ()
-        assert tree_store == self.album_store
-        (path, focus_column) = tree_view.get_cursor()
-        if path == None:
-            return
-
-        tree_iter = tree_store.get_iter (path)
-        if tree_iter == None:
-            return
-
-        self.album = tree_store.get_value (tree_iter, 1)
-        self.populate_song_list()
-
-    def _song_activated_cb (self, tree_view, path, view_column):
-        assert tree_view == self.song_view
-        tree_store = tree_view.get_model ()
-        assert tree_store == self.song_store
-        if path == None:
-            return
-
-        tree_iter = tree_store.get_iter (path)
-        if tree_iter == None:
-            return
-
-        self.song_name = tree_store.get_value (tree_iter, 1)
-        self.song_filename = tree_store.get_value (tree_iter, 2)
-        self.play_song()
 
     def play_song(self):
         self.totem.add_to_playlist_and_play(self.song_filename, self.song_name, True)
