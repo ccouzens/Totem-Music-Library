@@ -5,9 +5,8 @@ A music library for [Totem](http://projects.gnome.org/totem/) that uses [Tracker
 
 Since it uses Tracker, it doesn't require any configuration.
 
-On the left is a list of the artists in your music collection.
-When you select an artist, it lists their albums.
-When you select an album, it lists the songs for that album.
+In the sidebar you get a list of all the artists in your music collection.
+You can drill down to their albums, then to songs.
 When you double click a song, it starts playing.
 
 ![screenshot](https://github.com/ccouzens/Totem-Music-Library/raw/master/Screenshot_2_at_2012_01_26.png "screenshot")
@@ -30,14 +29,6 @@ If you needed to install something else, let me know and I'll add to this page
 
 Critique
 --------
-The user interface doesn't work as well as I had hoped.
-Totem's sidebar opens thin so resizing is required to make this usable.
-Scrolling horizontally with the trackpad is often picked up by Totem as fastforwarding or rewinding the song.
-I'll probably swap the current 3 columns for a single tree view.
-
-The code isn't asynchronous.
-This means the plugin could slow down Totem.
-It hasn't been a problem in my experience, but I would like to make it asynchronous anyway.
 
 I've not put much thought into how the plugin gets activated and deactivated.
 It might be using more resources than it should when the it is deactivated.
