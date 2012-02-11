@@ -9,7 +9,7 @@ In the sidebar you get a list of all the artists in your music collection.
 You can drill down to their albums, then to songs.
 When you double click a song, it starts playing.
 
-![screenshot](https://github.com/ccouzens/Totem-Music-Library/raw/master/Screenshot_2_at_2012_01_26.png "screenshot")
+![screenshot](https://github.com/ccouzens/Totem-Music-Library/raw/master/Screenshot+at+2012-02-11+21:15:35.png "screenshot")
 
 Install
 -------
