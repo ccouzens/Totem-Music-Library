@@ -7,6 +7,7 @@ from gi.repository import Tracker
 
 DISPLAY_COLUMN = 0
 OBJECT_COLUMN = 1
+FILENAME_COLUMN = 2
 
 # see http://oscaf.sourceforge.net/nmm.html for descriptions of the query objects
 # see http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Music for example music queries
@@ -41,12 +42,13 @@ def albums_query (artist):
 def songs_query (album):
     album = Tracker.sparql_escape_string(album)
     return """
-    SELECT ?song_name ?song
+    SELECT ?song_name ?song ?filename
     WHERE {
         ?song a nmm:MusicPiece; 
             nmm:musicAlbum "%s";
             nmm:trackNumber ?trackNumber;
-            nie:title ?song_name .
+            nie:title ?song_name ;
+            nie:url ?filename .
     }  
     # need to also sort by disk number
     ORDER BY ?trackNumber
@@ -76,6 +78,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.totem.add_sidebar_page ("musiclibrary", "Music Library", container)
 
         GObject.idle_add(self.populate_artists)
+        self.song_clicked = self.music_view.connect("row-activated", self._song_activated_cb)
 
     def do_deactivate(self):
         #self.album_view.disconnect(self.album_clicked)
@@ -89,7 +92,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     def populate_artists (self):
         cursor = self.conn.query (ARTIST_QUERY, None)
         while cursor.next (None):
-            self.music_store.append(None, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.music_store.append(None, (cursor.get_string(0)[0],cursor.get_string(1)[0], None))
         GObject.idle_add(self.populate_next_album_list)
         self.next_artist_to_do_albums = self.music_store.get_iter_first()
         return False
@@ -111,7 +114,7 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     def populate_album_list (self, artist_object, artist_iter):
         cursor = self.conn.query (albums_query(artist_object), None)
         while cursor.next (None):
-            self.music_store.append(artist_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.music_store.append(artist_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0], None))
 
     def populate_next_song_list (self):
         tree_model = self.music_store
@@ -132,8 +135,23 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
     def populate_song_list (self, album_object, album_iter):
         cursor = self.conn.query (songs_query(album_object), None)
         while cursor.next (None):
-            self.music_store.append(album_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
+            self.music_store.append(album_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0],cursor.get_string(2)[0]))
 
+    def _song_activated_cb (self, tree_view, path, view_column):
+        assert tree_view == self.music_view
+        tree_store = tree_view.get_model ()
+        assert tree_store == self.music_store
+        if path == None:
+            return
 
-    def play_song(self):
-        self.totem.add_to_playlist_and_play(self.song_filename, self.song_name, True)
+        tree_iter = tree_store.get_iter (path)
+        if tree_iter == None:
+            return
+
+        song_name = tree_store.get_value (tree_iter, DISPLAY_COLUMN)
+        song_filename = tree_store.get_value (tree_iter, FILENAME_COLUMN)
+        if song_filename:
+            self.play_song(song_name, song_filename)
+
+    def play_song(self, song_name, song_filename):
+        self.totem.add_to_playlist_and_play(song_filename, song_name, True)
