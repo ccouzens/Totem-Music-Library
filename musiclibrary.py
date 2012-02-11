@@ -41,13 +41,12 @@ def albums_query (artist):
 def songs_query (album):
     album = Tracker.sparql_escape_string(album)
     return """
-    SELECT ?song_name ?song ?filename
+    SELECT ?song_name ?song
     WHERE {
         ?song a nmm:MusicPiece; 
             nmm:musicAlbum "%s";
             nmm:trackNumber ?trackNumber;
-            nie:title ?song_name;
-            nie:url ?filename.
+            nie:title ?song_name .
     }  
     # need to also sort by disk number
     ORDER BY ?trackNumber
@@ -97,7 +96,11 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
 
     def populate_next_album_list (self):
         tree_model = self.music_store
-        if self.next_artist_to_do_albums == None: return False
+        if self.next_artist_to_do_albums == None:
+            self.next_artist_to_do_albums = tree_model.get_iter_first()
+            self.next_album_to_do_songs = tree_model.iter_children(self.next_artist_to_do_albums)
+            GObject.idle_add(self.populate_next_song_list)
+            return False
 
         artist_object = tree_model.get_value(self.next_artist_to_do_albums, OBJECT_COLUMN)
         self.populate_album_list(artist_object, self.next_artist_to_do_albums)
@@ -110,11 +113,26 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         while cursor.next (None):
             self.music_store.append(artist_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
-    def populate_song_list (self):
-        self.song_store.clear()
-        cursor = self.conn.query (songs_query(self.album), None)
+    def populate_next_song_list (self):
+        tree_model = self.music_store
+        if self.next_artist_to_do_albums == None:
+            return False
+        if self.next_album_to_do_songs == None:
+            self.next_artist_to_do_albums = tree_model.iter_next(self.next_artist_to_do_albums)
+            self.next_album_to_do_songs = tree_model.iter_children(self.next_artist_to_do_albums)
+            return True
+        album_object = tree_model.get_value(self.next_album_to_do_songs, OBJECT_COLUMN)
+        self.populate_song_list (album_object, self.next_album_to_do_songs)
+
+        self.next_album_to_do_songs = tree_model.iter_next(self.next_album_to_do_songs)
+        return True
+
+
+
+    def populate_song_list (self, album_object, album_iter):
+        cursor = self.conn.query (songs_query(album_object), None)
         while cursor.next (None):
-            self.song_store.append((cursor.get_string(0)[0],cursor.get_string(1)[0],cursor.get_string(2)[0]))
+            self.music_store.append(album_iter, (cursor.get_string(0)[0],cursor.get_string(1)[0]))
 
 
     def play_song(self):
