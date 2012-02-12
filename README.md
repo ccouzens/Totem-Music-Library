@@ -38,5 +38,3 @@ When a song finishes it doesn't skip to the next one.
 
 The code repeats itself a lot.
 The code for artist, album and song is quite similiar.
-
-Multidisk albums display the songs out of order.
