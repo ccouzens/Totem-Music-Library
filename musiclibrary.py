@@ -48,10 +48,11 @@ def songs_query (album):
             nmm:musicAlbum "%s";
             nmm:trackNumber ?trackNumber;
             nie:title ?song_name ;
-            nie:url ?filename .
+            nie:url ?filename ;
+            nmm:musicAlbumDisc [nmm:setNumber ?disc_number].
     }  
     # need to also sort by disk number
-    ORDER BY ?trackNumber
+    ORDER BY ?disc_number ?trackNumber
     """ % (album, )
 
 class MusicLibrary(GObject.Object, Peas.Activatable):
