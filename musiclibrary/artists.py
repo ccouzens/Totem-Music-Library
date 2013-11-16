@@ -1,5 +1,6 @@
 from gi.repository import Tracker
 from copy import copy
+from artist import Artist
 
 class Artists:
 
@@ -20,18 +21,28 @@ class Artists:
 
 	def sparql(self):
 		return """
-		SELECT ?artist
+		SELECT ?artist ?artistName
 		WHERE {
+		?artist nmm:artistName ?artistName.
 		%s.
 		}
 		GROUP BY ?artist
 		""" % ".\n".join(self.wheres)
 
+	def find(self, artist_id):
+		escaped_artist_id = Tracker.sparql_escape_string(artist_id)
+		return where('?artist = "%s"' % escaped_artist_id).first()
+
+	def first(self):
+		try:
+			return self.all().next()
+		except StopIteration:
+			return None
+
 	def all(self):
 		cursor = self.conn.query (self.sparql(), None)
 		while cursor.next (None):
-			yield cursor.get_string(0)[0]
-		# return (cursor.get_string(0) while cursor = cursor.next (None))
+			yield Artist(cursor.get_string(0)[0], cursor.get_string(1)[0])
 
 	def __clone(self):
 		new_association = Artists()
