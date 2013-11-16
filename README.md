@@ -19,7 +19,7 @@ Install
 
     mkdir -p ~/.local/share/totem/plugins
     cd ~/.local/share/totem/plugins
-    git clone git@github.com:ccouzens/Totem-Music-Library.git musiclibrary
+    git clone https://github.com/ccouzens/Totem-Music-Library.git musiclibrary
 
     # start Totem
     totem

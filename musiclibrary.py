@@ -14,12 +14,12 @@ FILENAME_COLUMN = 2
 ARTIST_QUERY = """
 SELECT ?artist_name ?artist
 WHERE {
-    ?album a nmm:MusicAlbum; 
+    ?album a nmm:MusicAlbum;
         nmm:albumArtist ?artist.
     ?artist nmm:artistName ?artist_name.
     # make sure the album isn't empty
     ?song nmm:musicAlbum ?album .
-}  
+}
 GROUP BY ?artist
 ORDER BY ?artist_name
 """
@@ -29,12 +29,12 @@ def albums_query (artist):
     return """
     SELECT ?album_name ?album
     WHERE {
-        ?album a nmm:MusicAlbum; 
+        ?album a nmm:MusicAlbum;
             nmm:albumArtist "%s";
             nmm:albumTitle ?album_name.
         # make sure the album isn't empty
         ?song nmm:musicAlbum ?album .
-    }  
+    }
     GROUP BY ?album
     ORDER BY ?album_name
     """ % (artist, )
@@ -44,13 +44,13 @@ def songs_query (album):
     return """
     SELECT ?song_name ?song ?filename
     WHERE {
-        ?song a nmm:MusicPiece; 
+        ?song a nmm:MusicPiece;
             nmm:musicAlbum "%s";
             nmm:trackNumber ?trackNumber;
             nie:title ?song_name ;
             nie:url ?filename ;
             nmm:musicAlbumDisc [nmm:setNumber ?disc_number].
-    }  
+    }
     # need to also sort by disk number
     ORDER BY ?disc_number ?trackNumber
     """ % (album, )
@@ -155,4 +155,4 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
             self.play_song(song_name, song_filename)
 
     def play_song(self, song_name, song_filename):
-        self.totem.add_to_playlist_and_play(song_filename, song_name, True)
+        self.totem.add_to_playlist_and_play(song_filename, song_name)
