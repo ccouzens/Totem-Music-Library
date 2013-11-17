@@ -1,4 +1,5 @@
 import songs
+import albums
 
 class Artist:
 	def __init__(self, id, name):
@@ -19,3 +20,6 @@ class Artist:
 
 	def songs_performed(self):
 		return songs.Songs().performed_by(self.id)
+
+	def albums_where_album_artist(self):
+		return albums.Albums().where_album_artist(self.id)

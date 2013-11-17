@@ -1,4 +1,5 @@
 import artists
+import albums
 
 class Song:
 	def __init__(self, id, title, album_id, album_disc_id, performer_id, composer_id, track_number, genre, url, duration):
@@ -23,7 +24,10 @@ class Song:
 		return self.id
 
 	def performer(self):
-		return artists.Artists().find(self.performer_id)
+		return self.performer_id and artists.Artists()[self.performer_id]
 
 	def composer(self):
-		return artists.Artists().find(self.composer_id)
+		return self.composer_id and artists.Artists()[self.composer_id]
+
+	def album(self):
+		return self.album_id and albums.Albums()[self.album_id]
