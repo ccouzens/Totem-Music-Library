@@ -1,6 +1,6 @@
 from gi.repository import Tracker
 from copy import copy
-from artist import Artist
+import artist
 
 class Artists:
 
@@ -8,11 +8,14 @@ class Artists:
 		self.conn = conn or Tracker.SparqlConnection.get (None)
 		self.wheres = ["?artist a nmm:Artist"]
 
-	def albumArtists(self):
+	def album_artist(self):
 		return self.where("?album nmm:albumArtist ?artist")
 
-	def songArtists(self):
-		return self.where("?song nmm:performer ?artist")
+	def song_performer(self):
+		return self.where("?performedSong nmm:performer ?artist")
+
+	def song_composer(self):
+		return self.where("?composedSong nmm:composer ?artist")
 
 	def where(self, new_condition):
 		new_association = self.__clone()
@@ -21,9 +24,8 @@ class Artists:
 
 	def sparql(self):
 		return """
-		SELECT ?artist ?artistName
+		SELECT ?artist nmm:artistName(?artist)
 		WHERE {
-		?artist nmm:artistName ?artistName.
 		%s.
 		}
 		GROUP BY ?artist
@@ -31,7 +33,8 @@ class Artists:
 
 	def find(self, artist_id):
 		escaped_artist_id = Tracker.sparql_escape_string(artist_id)
-		return where('?artist = "%s"' % escaped_artist_id).first()
+		# doesn't work
+		return self.where('?artist = "%s"' % escaped_artist_id).first()
 
 	def first(self):
 		try:
@@ -40,9 +43,14 @@ class Artists:
 			return None
 
 	def all(self):
-		cursor = self.conn.query (self.sparql(), None)
+		sparql = self.sparql()
+		try:
+			cursor = self.conn.query (self.sparql(), None)
+		except Exception, e:
+			print sparql
+			raise e
 		while cursor.next (None):
-			yield Artist(cursor.get_string(0)[0], cursor.get_string(1)[0])
+			yield artist.Artist(cursor.get_string(0)[0], cursor.get_string(1)[0])
 
 	def __clone(self):
 		new_association = Artists()
