@@ -29,8 +29,7 @@ class Songs:
 
 	def find(self, id):
 		escaped_id = Tracker.sparql_escape_string(id)
-		# doesn't work
-		return self.where('?song = "%s"' % escaped_id).first()
+		return self.where('FILTER(?song = <%s>)' % escaped_id).first()
 
 	def first(self):
 		try:

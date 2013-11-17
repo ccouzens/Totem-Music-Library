@@ -33,8 +33,7 @@ class Artists:
 
 	def find(self, artist_id):
 		escaped_artist_id = Tracker.sparql_escape_string(artist_id)
-		# doesn't work
-		return self.where('?artist = "%s"' % escaped_artist_id).first()
+		return self.where('FILTER(?artist = <%s>)' % escaped_artist_id).first()
 
 	def first(self):
 		try:
@@ -43,12 +42,7 @@ class Artists:
 			return None
 
 	def all(self):
-		sparql = self.sparql()
-		try:
-			cursor = self.conn.query (self.sparql(), None)
-		except Exception, e:
-			print sparql
-			raise e
+		cursor = self.conn.query (self.sparql(), None)
 		while cursor.next (None):
 			yield artist.Artist(cursor.get_string(0)[0], cursor.get_string(1)[0])
 

@@ -5,6 +5,7 @@ class Song:
 		self.id = id
 		self.title = title
 		self.album_id = album_id
+		self.album_disc_id = album_disc_id
 		self.performer_id = performer_id
 		self.composer_id = composer_id
 		self.track_number = track_number
