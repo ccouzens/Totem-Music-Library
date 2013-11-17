@@ -5,24 +5,11 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Tracker
 
+from trackermusiclibrary.artists import Artists
+
 DISPLAY_COLUMN = 0
 OBJECT_COLUMN = 1
 FILENAME_COLUMN = 2
-
-# see http://oscaf.sourceforge.net/nmm.html for descriptions of the query objects
-# see http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Music for example music queries
-ARTIST_QUERY = """
-SELECT ?artist_name ?artist
-WHERE {
-    ?album a nmm:MusicAlbum;
-        nmm:albumArtist ?artist.
-    ?artist nmm:artistName ?artist_name.
-    # make sure the album isn't empty
-    ?song nmm:musicAlbum ?album .
-}
-GROUP BY ?artist
-ORDER BY ?artist_name
-"""
 
 def albums_query (artist):
     artist = Tracker.sparql_escape_string(artist)
@@ -91,9 +78,8 @@ class MusicLibrary(GObject.Object, Peas.Activatable):
         self.music_view = None
 
     def populate_artists (self):
-        cursor = self.conn.query (ARTIST_QUERY, None)
-        while cursor.next (None):
-            self.music_store.append(None, (cursor.get_string(0)[0],cursor.get_string(1)[0], None))
+        for artist in Artists().album_artists():
+            self.music_store.append(None, (artist.name, artist.id, None))
         GObject.idle_add(self.populate_next_album_list)
         self.next_artist_to_do_albums = self.music_store.get_iter_first()
         return False
