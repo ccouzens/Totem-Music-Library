@@ -1,7 +1,7 @@
 from gi.repository import Tracker
-import song
 
 class Songs:
+
 
 	def __init__(self, conn=None, wheres=()):
 		self.conn = conn or Tracker.SparqlConnection.get (None)
@@ -41,6 +41,7 @@ class Songs:
 			return None
 
 	def __iter__(self):
+		from . import song
 		cursor = self.conn.query (self.sparql(), None)
 		while cursor.next (None):
 			yield song.Song(cursor.get_string(0)[0], cursor.get_string(1)[0], cursor.get_string(2)[0], cursor.get_string(3)[0], cursor.get_string(4)[0], cursor.get_string(5)[0], cursor.get_string(6)[0], cursor.get_string(7)[0], cursor.get_string(8)[0], cursor.get_string(9)[0])

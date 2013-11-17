@@ -1,7 +1,6 @@
-import artists
-import songs
-
 class Album:
+
+
 	def __init__(self, id, peak_gain, gain, duration, title, track_count, artist_id):
 		self.id = id
 		self.peak_gain = peak_gain
@@ -21,7 +20,9 @@ class Album:
 		return self.id
 
 	def artist(self):
+		from . import artists
 		return artists.Artists()[self.artist_id]
 
 	def songs(self):
+		from . import songs
 		return songs.Songs().part_of_album(self.id)

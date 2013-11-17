@@ -1,7 +1,7 @@
 from gi.repository import Tracker
-import artist
 
 class Artists:
+
 
 	def __init__(self, conn=None, wheres=()):
 		self.conn = conn or Tracker.SparqlConnection.get (None)
@@ -42,6 +42,7 @@ class Artists:
 			return None
 
 	def __iter__(self):
+		from . import artist
 		cursor = self.conn.query (self.sparql(), None)
 		while cursor.next (None):
 			yield artist.Artist(cursor.get_string(0)[0], cursor.get_string(1)[0])
